@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <filter>..\\..\\..\\Filters\\Default.xml</filter>
+  <source type="Server">
+    <url>http://localhost/11SP9</url>
+    <database>Development</database>
+    <username>admin</username>
+    <password>innovator</password>
+  </source>
+  <target type="Directory">
+    <name>E:\Temp\11SP9_Development</name>
+  </target>
+</configuration>

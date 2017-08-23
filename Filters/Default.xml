@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<itemtypes>
+	<itemtype name="ItemType" key="name">
+		<relationshiptypes>
+			<relationshiptype name="Property" key="name">
+			</relationshiptype>
+			<relationshiptype name="RelationshipType" key="name">
+			</relationshiptype>
+		</relationshiptypes>
+	</itemtype>
+</itemtypes>
