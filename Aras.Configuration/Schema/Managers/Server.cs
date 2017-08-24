@@ -145,7 +145,10 @@ namespace Aras.Configuration.Schema.Managers
 
                 IO.Response response = request.Execute();
 
-
+                foreach(IO.Item ioitem in response.Items)
+                {
+                    this.AddItem(new Item(this, ioitem.GetString()));
+                }
             }
         }
 

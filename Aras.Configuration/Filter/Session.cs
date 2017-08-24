@@ -56,6 +56,18 @@ namespace Aras.Configuration.Filter
             }
         }
 
+        public ItemType ItemType(String Name)
+        {
+            if (this.ItemTypesCache.ContainsKey(Name))
+            {
+                return this.ItemTypesCache[Name];
+            }
+            else
+            {
+                throw new ArgumentException("Invalid ItemType Name");
+            }
+        }
+
         private void Load()
         {
             // Create Caches

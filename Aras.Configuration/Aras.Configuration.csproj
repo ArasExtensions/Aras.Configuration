@@ -42,6 +42,7 @@
     <Compile Include="Filter\RelationshipType.cs" />
     <Compile Include="Filter\ItemType.cs" />
     <Compile Include="Filter\Session.cs" />
+    <Compile Include="Schema\Item.cs" />
     <Compile Include="Schema\ItemType.cs" />
     <Compile Include="Schema\Manager.cs" />
     <Compile Include="Schema\Managers\Directory.cs" />

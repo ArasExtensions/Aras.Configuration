@@ -75,6 +75,28 @@ namespace Aras.Configuration.Schema
 
         protected abstract IEnumerable<ItemType> LoadItemTypes();
 
+        private Dictionary<String, Dictionary<String, Item>> ItemKeyCache;
+
+        protected void AddItem(Item Item)
+        {
+            if (!this.ItemKeyCache.ContainsKey(Item.ItemType))
+            {
+                this.ItemKeyCache[Item.ItemType] = new Dictionary<String, Item>();
+                this.ItemKeyCache[Item.ItemType][Item.Key] = Item;
+            }
+            else
+            {
+                if (!this.ItemKeyCache[Item.ItemType].ContainsKey(Item.Key))
+                {
+                    this.ItemKeyCache[Item.ItemType][Item.Key] = Item;
+                }
+                else
+                {
+                    throw new ArgumentException("Duplicate Item Key");
+                }
+            }
+        }
+
         public abstract void Load();
 
         public abstract void Save();
@@ -86,6 +108,7 @@ namespace Aras.Configuration.Schema
 
         internal Manager(Configuration.Session Configuration, XmlNode Settings)
         {
+            this.ItemKeyCache = new Dictionary<String, Dictionary<String, Item>>();
             this.Configuration = Configuration;
             this.LoadSettings(Settings);
             this.ItemTypesCache = new Dictionary<String, ItemType>();
