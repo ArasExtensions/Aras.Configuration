@@ -42,9 +42,11 @@
     <Compile Include="Filter\RelationshipType.cs" />
     <Compile Include="Filter\ItemType.cs" />
     <Compile Include="Filter\Session.cs" />
+    <Compile Include="Schema\ItemType.cs" />
     <Compile Include="Schema\Manager.cs" />
     <Compile Include="Schema\Managers\Directory.cs" />
     <Compile Include="Schema\Managers\Server.cs" />
+    <Compile Include="Schema\Property.cs" />
     <Compile Include="Session.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -57,6 +59,11 @@
       <Project>{5acc089e-892b-4fa7-891d-b2f6d74a4d7b}</Project>
       <Name>Aras.IO</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Filters\Default.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

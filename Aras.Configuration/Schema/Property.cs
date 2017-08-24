@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<!--
+﻿/*  
   Copyright 2017 Processwall Limited
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,16 +18,31 @@
   Tel:     +44 113 815 3440
   Web:     http://www.processwall.com
   Email:   support@processwall.com
--->
-<configuration>
-  <filter>.\Filters\Default.xml</filter>
-  <source type="Server">
-    <url>http://localhost/11SP9</url>
-    <database>Development</database>
-    <username>admin</username>
-    <password>innovator</password>
-  </source>
-  <target type="Directory">
-    <name>E:\Temp\11SP9_Development</name>
-  </target>
-</configuration>
+*/
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Aras.Configuration.Schema
+{
+    public class Property
+    {
+        public String Name { get; private set; }
+
+        public String DataType { get; private set; }
+
+        public override string ToString()
+        {
+            return this.Name;
+        }
+
+        internal Property(String Name, String DataType)
+        {
+            this.Name = Name;
+            this.DataType = DataType;
+        }
+    }
+}

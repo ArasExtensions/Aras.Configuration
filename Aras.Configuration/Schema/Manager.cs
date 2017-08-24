@@ -51,6 +51,30 @@ namespace Aras.Configuration.Schema
 
         protected abstract void LoadSettings(XmlNode Settings);
 
+        private Dictionary<String, ItemType> ItemTypesCache;
+
+        public IEnumerable<ItemType> ItemTypes
+        {
+            get
+            {
+                return this.ItemTypesCache.Values;
+            }
+        }
+
+        public ItemType ItemType(String Name)
+        {
+            if (this.ItemTypesCache.ContainsKey(Name))
+            {
+                return this.ItemTypesCache[Name];
+            }
+            else
+            {
+                throw new ArgumentException("Invalid ItemType Name");
+            }
+        }
+
+        protected abstract IEnumerable<ItemType> LoadItemTypes();
+
         public abstract void Load();
 
         public abstract void Save();
@@ -64,6 +88,15 @@ namespace Aras.Configuration.Schema
         {
             this.Configuration = Configuration;
             this.LoadSettings(Settings);
+            this.ItemTypesCache = new Dictionary<String, ItemType>();
+            
+            foreach(ItemType itemtype in this.LoadItemTypes())
+            {
+                if (!this.ItemTypesCache.ContainsKey(itemtype.Name))
+                {
+                    this.ItemTypesCache[itemtype.Name] = itemtype;
+                }
+            }
         }
     }
 }

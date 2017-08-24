@@ -86,6 +86,43 @@ namespace Aras.Configuration.Schema.Managers
             }
         }
 
+        protected override IEnumerable<ItemType> LoadItemTypes()
+        {
+            List<ItemType> ret = new List<Schema.ItemType>();
+
+            // Connect to Server
+            IO.Server server = new IO.Server(this.URL);
+            IO.Database database = server.Database(this.Database);
+            IO.Session session = database.Login(this.Username, this.Password);
+
+            IO.Request request = session.Request(IO.Request.Operations.ApplyItem);
+            IO.Item item = request.NewItem("ItemType", "get");
+            item.Select = "name,is_relationship";
+            IO.Item relitem = new IO.Item("Property", "get");
+            relitem.Select = "name,data_type";
+            item.AddRelationship(relitem);
+
+            IO.Response response = request.Execute();
+
+            foreach(IO.Item ioitem in response.Items)
+            {
+                ItemType itemtype = new ItemType(ioitem.GetProperty("name"), "1".Equals(ioitem.GetProperty("is_relationship")));
+                ret.Add(itemtype);
+
+                foreach(IO.Item ioprop in ioitem.Relationships)
+                {
+                    String name = ioprop.GetProperty("name");
+
+                    if (!this.Filter.SystemProperties.Contains(name))
+                    {
+                        itemtype.AddProperty(name, ioprop.GetProperty("data_type"));
+                    }
+                }
+            }
+
+            return ret;
+        }
+
         public override void Load()
         {
             // Connect to Server
@@ -97,10 +134,12 @@ namespace Aras.Configuration.Schema.Managers
             {
                 IO.Request request = session.Request(IO.Request.Operations.ApplyItem);
                 IO.Item item = request.NewItem(filteritemtype.Name, "get");
+                item.Select = this.ItemType(filteritemtype.Name).Select;
 
                 foreach(Filter.RelationshipType filterrelationshiptype in filteritemtype.RelationshipTypes)
                 {
                     IO.Item relitem = new IO.Item(filterrelationshiptype.Name, "get");
+                    relitem.Select = this.ItemType(filterrelationshiptype.Name).Select;
                     item.AddRelationship(relitem);
                 }
 

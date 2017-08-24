@@ -36,6 +36,16 @@ namespace Aras.Configuration.Filter
 
         public Logging.Log Log { get; private set; }
 
+        private List<String> SystemPropertiesCache;
+
+        public IEnumerable<String> SystemProperties
+        {
+            get
+            {
+                return this.SystemPropertiesCache;
+            }
+        }
+
         private Dictionary<String, ItemType> ItemTypesCache;
 
         public IEnumerable<ItemType> ItemTypes
@@ -48,11 +58,40 @@ namespace Aras.Configuration.Filter
 
         private void Load()
         {
+            // Create Caches
+            this.SystemPropertiesCache = new List<String>();
             this.ItemTypesCache = new Dictionary<String,ItemType>();
 
+            // Open XML File
             XmlDocument doc = new XmlDocument();
             doc.Load(this.Filename.FullName);
-            XmlNode itemtypesNode = doc.SelectSingleNode("itemtypes");
+            XmlNode filterNode = doc.SelectSingleNode("filter");
+
+            // Load System Properties
+            XmlNode systemPropertiesNode = filterNode.SelectSingleNode("systemproperties");
+
+            if (systemPropertiesNode != null)
+            {
+                foreach (XmlNode propertyNode in systemPropertiesNode.SelectNodes("property"))
+                {
+                    String property = propertyNode.InnerText;
+
+                    if (!String.IsNullOrEmpty(property))
+                    {
+                        if (!this.SystemPropertiesCache.Contains(property))
+                        {
+                            this.SystemPropertiesCache.Add(property);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                this.Log.Add(Logging.Levels.Error, "Filter does not contain a systemproperties node");
+            }
+
+            // Load ItemTypes
+            XmlNode itemtypesNode = filterNode.SelectSingleNode("itemtypes");
 
             if (itemtypesNode != null)
             {
