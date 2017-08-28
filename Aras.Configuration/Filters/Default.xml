@@ -46,6 +46,42 @@
       <relationshiptypes>
         <relationshiptype name="Property" key="name">
         </relationshiptype>
+        <relationshiptype name="RelationshipType" key="name">
+        </relationshiptype>
+        <relationshiptype name="View" key="name">
+        </relationshiptype>
+      </relationshiptypes>
+    </itemtype>
+    <itemtype name="Permission" key="name">
+      <relationshiptypes>
+        <relationshiptype name="Access" key="name">
+        </relationshiptype>
+      </relationshiptypes>
+    </itemtype>
+    <itemtype name="Identity" key="name">
+      <relationshiptypes>
+        <relationshiptype name="Member" key="name">
+        </relationshiptype>
+      </relationshiptypes>
+    </itemtype>
+    <itemtype name="User" key="login_name">
+      <relationshiptypes>
+        <relationshiptype name="Alias" key="name">
+        </relationshiptype>
+      </relationshiptypes>
+    </itemtype>
+    <itemtype name="Form" key="name">
+      <relationshiptypes>
+        <relationshiptype name="Body" key="name">
+          <relationshiptypes>
+            <relationshiptype name="Field" key="name">
+            </relationshiptype>
+          </relationshiptypes>
+        </relationshiptype>
+        <relationshiptype name="Form Event" key="name">
+        </relationshiptype>
+        <relationshiptype name="Frameset" key="name">
+        </relationshiptype>
       </relationshiptypes>
     </itemtype>
   </itemtypes>

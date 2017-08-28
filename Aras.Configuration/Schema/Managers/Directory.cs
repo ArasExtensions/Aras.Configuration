@@ -58,9 +58,51 @@ namespace Aras.Configuration.Schema.Managers
      
         }
 
+        private FileInfo ItemFilename (Item Item)
+        {
+            return new FileInfo(this.BaseDirectory.FullName + "\\" + Item.ItemType + "\\" + Item.Key + ".xml");
+        }
+
         public override void Save()
         {
-           
+           foreach(String itemtype in this.LoadedItemTypes)
+           {
+               foreach(Item item in this.LoadedItems(itemtype))
+               {
+                   FileInfo file = this.ItemFilename(item);
+
+                   switch(item.Action)
+                   {
+                       case Item.Actions.Add:
+                       case Item.Actions.Update:
+
+                           if (!file.Directory.Exists)
+                           {
+                               file.Directory.Create();
+                           }
+
+                           using (XmlTextWriter xmlwriter = new XmlTextWriter(file.FullName, Encoding.UTF8))
+                           {
+                               xmlwriter.Formatting = Formatting.Indented;
+                               item.Document.WriteContentTo(xmlwriter);
+                           }
+
+                           break;
+
+                       case Item.Actions.Delete:
+
+                           if (file.Exists)
+                           {
+                               file.Delete();
+                           }
+
+                           break;
+                       default:
+
+                           break;
+                   }
+               }
+           }
         }
 
         internal Directory(Configuration.Session Configuration, XmlNode Settings)

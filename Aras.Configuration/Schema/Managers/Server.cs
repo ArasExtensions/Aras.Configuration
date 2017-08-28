@@ -123,31 +123,44 @@ namespace Aras.Configuration.Schema.Managers
             return ret;
         }
 
+
+        private void AddRelationshipTypes(IO.Request Request, IO.Item Source, Filter.ItemType FilterItemType)
+        {
+            foreach (Filter.RelationshipType filterrelationshiptype in FilterItemType.RelationshipTypes)
+            {
+                IO.Item item = Request.NewItem(filterrelationshiptype.Name, "get");
+                item.Select = this.ItemType(filterrelationshiptype.Name).Select;
+                this.AddRelationshipTypes(Request, item, filterrelationshiptype);
+                Source.AddRelationship(item);
+            }
+        }
+
         public override void Load()
         {
-            // Connect to Server
-            IO.Server server = new IO.Server(this.URL);
-            IO.Database database = server.Database(this.Database);
-            IO.Session session = database.Login(this.Username, this.Password);
-
             foreach(Filter.ItemType filteritemtype in this.Filter.ItemTypes)
             {
+                // Connect to Server
+                IO.Server server = new IO.Server(this.URL);
+                IO.Database database = server.Database(this.Database);
+                IO.Session session = database.Login(this.Username, this.Password);
+
+                // Create Base Item
                 IO.Request request = session.Request(IO.Request.Operations.ApplyItem);
-                IO.Item item = request.NewItem(filteritemtype.Name, "get");
-                item.Select = this.ItemType(filteritemtype.Name).Select;
+                IO.Item query = request.NewItem(filteritemtype.Name, "get");
+                query.Select = this.ItemType(filteritemtype.Name).Select;
 
-                foreach(Filter.RelationshipType filterrelationshiptype in filteritemtype.RelationshipTypes)
-                {
-                    IO.Item relitem = new IO.Item(filterrelationshiptype.Name, "get");
-                    relitem.Select = this.ItemType(filterrelationshiptype.Name).Select;
-                    item.AddRelationship(relitem);
-                }
+                // Load Relationships
+                this.AddRelationshipTypes(request, query, filteritemtype);
 
+                // Reqest Items
                 IO.Response response = request.Execute();
 
-                foreach(IO.Item ioitem in response.Items)
+                // Add Items to Cache
+                foreach (IO.Item ioitem in response.Items)
                 {
-                    this.AddItem(new Item(this, ioitem.GetString()));
+                    XmlDocument document = new XmlDocument();
+                    document.LoadXml(ioitem.GetString());
+                    Item item = new Item(this, document);
                 }
             }
         }

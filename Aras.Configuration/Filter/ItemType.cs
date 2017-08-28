@@ -67,6 +67,11 @@ namespace Aras.Configuration.Filter
             }
         }
 
+        public override string ToString()
+        {
+            return this.Name;
+        }
+
         internal ItemType(XmlNode Node)
         {
             this.Load(Node);

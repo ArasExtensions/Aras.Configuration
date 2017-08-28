@@ -75,25 +75,64 @@ namespace Aras.Configuration.Schema
 
         protected abstract IEnumerable<ItemType> LoadItemTypes();
 
-        private Dictionary<String, Dictionary<String, Item>> ItemKeyCache;
+        private Dictionary<String, Dictionary<String, Item>> ItemIDCache;
 
-        protected void AddItem(Item Item)
+        internal void AddItemToCache(Item Item)
         {
-            if (!this.ItemKeyCache.ContainsKey(Item.ItemType))
+            if (!this.ItemIDCache.ContainsKey(Item.ItemType))
             {
-                this.ItemKeyCache[Item.ItemType] = new Dictionary<String, Item>();
-                this.ItemKeyCache[Item.ItemType][Item.Key] = Item;
+                this.ItemIDCache[Item.ItemType] = new Dictionary<String, Item>();
+                this.ItemIDCache[Item.ItemType][Item.ID] = Item;
             }
             else
             {
-                if (!this.ItemKeyCache[Item.ItemType].ContainsKey(Item.Key))
+                if (!this.ItemIDCache[Item.ItemType].ContainsKey(Item.ID))
                 {
-                    this.ItemKeyCache[Item.ItemType][Item.Key] = Item;
+                    this.ItemIDCache[Item.ItemType][Item.ID] = Item;
                 }
                 else
                 {
-                    throw new ArgumentException("Duplicate Item Key");
+                    throw new ArgumentException("Duplicate Item ID");
                 }
+            }
+        }
+
+        public IEnumerable<String> LoadedItemTypes
+        {
+            get
+            {
+                return this.ItemIDCache.Keys;
+            }
+        }
+
+        public IEnumerable<Item> LoadedItems(String ItemType)
+        {
+            if (this.ItemIDCache.ContainsKey(ItemType))
+            {
+                return this.ItemIDCache[ItemType].Values;
+            }
+            else
+            {
+                throw new ArgumentException("ItemType not Loaded");
+            }
+        }
+
+        public Item LoadedItem(String ItemType, String ID)
+        {
+            if (this.ItemIDCache.ContainsKey(ItemType))
+            {
+                if (this.ItemIDCache[ItemType].ContainsKey(ID))
+                {
+                    return this.ItemIDCache[ItemType][ID];
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
             }
         }
 
@@ -103,12 +142,31 @@ namespace Aras.Configuration.Schema
 
         public void Merge(Manager Target)
         {
+            foreach(Filter.ItemType itemtype in this.Filter.ItemTypes)
+            {
+                foreach(Item sourceitem in this.LoadedItems(itemtype.Name))
+                {
+                    Item targetitem = Target.LoadedItem(itemtype.Name, sourceitem.ID);
 
+                    if (targetitem == null)
+                    {
+                        XmlDocument targetdocument = new XmlDocument();
+                        targetdocument.LoadXml(sourceitem.GetString());
+                        targetitem = new Item(Target, targetdocument);
+                        targetitem.Action = Item.Actions.Add;
+                    }
+                    else
+                    {
+
+                    }
+                }
+            }
         }
 
         internal Manager(Configuration.Session Configuration, XmlNode Settings)
         {
-            this.ItemKeyCache = new Dictionary<String, Dictionary<String, Item>>();
+            this.ItemIDCache = new Dictionary<String, Dictionary<String, Item>>();
+            //this.ItemKeyCache = new Dictionary<String, Dictionary<String, Item>>();
             this.Configuration = Configuration;
             this.LoadSettings(Settings);
             this.ItemTypesCache = new Dictionary<String, ItemType>();

@@ -87,7 +87,7 @@ namespace Aras.Configuration.Schema
 
                     if (this.IsRelationship)
                     {
-                        sb.Append("source_id,related_id,id");
+                        sb.Append("source_id(id),related_id(id),id");
                     }
                     else
                     {

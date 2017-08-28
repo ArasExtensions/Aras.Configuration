@@ -31,11 +31,20 @@ namespace Aras.Configuration.Schema
 {
     public class Item
     {
+        public enum Actions { Get, Update, Add, Delete };
+
         public Manager Manager { get; private set; }
 
-        private XmlDocument Document;
+        internal XmlDocument Document { get; private set; }
 
-        private XmlNode Node;
+        internal XmlNode Node { get; private set; }
+
+        internal String GetString()
+        {
+            return this.Node.OuterXml;
+        }
+
+        public Actions Action { get; internal set; }
 
         public String ID
         {
@@ -109,12 +118,19 @@ namespace Aras.Configuration.Schema
             }
         }
 
-        internal Item(Manager Manager, String Item)
+        internal Item(Manager Manager, XmlDocument Document)
+            : this(Manager, Document, Document.SelectSingleNode("Item"))
+        {
+    
+        }
+
+        internal Item(Manager Manager, XmlDocument Document, XmlNode Node)
         {
             this.Manager = Manager;
-            this.Document = new XmlDocument();
-            this.Document.LoadXml(Item);
-            this.Node = this.Document.SelectSingleNode("Item");
+            this.Document = Document;
+            this.Node = Node;
+            this.Action = Actions.Get;
+            Manager.AddItemToCache(this);
         }
     }
 }
