@@ -58,7 +58,7 @@ namespace Aras.Configuration.Schema
                 }
                 else
                 {
-                    return null;
+                    throw new ArgumentNullException("Missing id node");
                 }
             }
         }
@@ -78,7 +78,7 @@ namespace Aras.Configuration.Schema
                     }
                     else
                     {
-                        throw new ArgumentNullException("Missing ItemType");
+                        throw new ArgumentNullException("Missing ItemType node");
                     }
                 }
 
@@ -86,7 +86,109 @@ namespace Aras.Configuration.Schema
             }
         }
 
-        public String GetProperty(String Name, String Default)
+        public IEnumerable<String> PropertyNames
+        {
+            get
+            {
+                List<String> ret = new List<String>();
+                
+                foreach(XmlNode node in this.Node.ChildNodes)
+                {
+                    switch(node.Name)
+                    {
+                        case "id":
+                        case "Relationships":
+                            break;
+                        default:
+                            ret.Add(node.Name);
+                            break;
+                    }
+                }
+
+                return ret;
+            }
+        }
+
+        public Boolean IsPropertyItem(String Name)
+        {
+            XmlNode propnode = this.Node.SelectSingleNode(Name);
+
+            if (propnode != null)
+            {
+                XmlAttribute typeattr = propnode.Attributes["type"];
+
+                if (typeattr != null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                throw new ArgumentException("Invalid Property Name");
+            }
+        }
+
+        public String GetPropertyItemType(String Name)
+        {
+            XmlNode propnode = this.Node.SelectSingleNode(Name);
+
+            if (propnode != null)
+            {
+                XmlAttribute typeattr = propnode.Attributes["type"];
+
+                if (typeattr != null)
+                {
+                    return typeattr.InnerText;
+                }
+                else
+                {
+                    throw new ArgumentNullException("Missing type attribute");
+                }
+            }
+            else
+            {
+                throw new ArgumentException("Invalid Property Name");
+            }
+        }
+
+        public String GetPropertyItemID(String Name)
+        {
+            XmlNode propnode = this.Node.SelectSingleNode(Name);
+
+            if (propnode != null)
+            {
+                XmlAttribute typeattr = propnode.Attributes["type"];
+
+                if (typeattr != null)
+                {
+                    XmlNode itemnode = propnode.SelectSingleNode("Item");
+
+                    if (itemnode != null)
+                    {
+                        XmlNode idnode = itemnode.SelectSingleNode("id");
+                        return idnode.InnerText;
+                    }
+                    else
+                    {
+                        throw new ArgumentNullException("Missing Item node");
+                    }
+                }
+                else
+                {
+                    throw new ArgumentNullException("Missing type attribute");
+                }
+            }
+            else
+            {
+                throw new ArgumentException("Invalid Property Name");
+            }
+        }
+
+        public String GetProperty(String Name)
         {
             XmlNode propnode = this.Node.SelectSingleNode(Name);
 
@@ -105,7 +207,7 @@ namespace Aras.Configuration.Schema
             }
             else
             {
-                return Default;
+                throw new ArgumentException("Invalid Property Name");
             }
         }
 
@@ -117,7 +219,7 @@ namespace Aras.Configuration.Schema
                 if (this._key == null)
                 {
                     String kepprop = this.ItemType.Key;
-                    this._key = this.GetProperty(kepprop, null);
+                    this._key = this.GetProperty(kepprop);
                 }
 
                 return this._key;
@@ -146,9 +248,35 @@ namespace Aras.Configuration.Schema
 
         private List<Item> RelationshipsCache;
 
+        public IEnumerable<Item> Relationships
+        {
+            get
+            {
+                return this.RelationshipsCache;
+            }
+        }
+
         internal void Validate()
         {
+            foreach(String propname in this.PropertyNames)
+            {
+                if (this.IsPropertyItem(propname))
+                {
+                    String propitemtype = this.GetPropertyItemType(propname);
+                    String propitemid = this.GetPropertyItemID(propname);
+                    Item propitem = this.Manager.LoadedItem(propitemtype, propitemid);
 
+                    if (propitem == null)
+                    {
+                        this.Manager.Log.Add(Logging.Levels.Error, "Item not loaded: " + propitemtype + ": " + propitemid);
+                    }
+                }
+            }
+
+            foreach(Item relationship in this.Relationships)
+            {
+                relationship.Validate();
+            }
         }
 
         internal Item(Manager Manager, XmlDocument Document)
@@ -173,6 +301,7 @@ namespace Aras.Configuration.Schema
             foreach (XmlNode relnode in this.RelationshipsNode.ChildNodes)
             {
                 Item relitem = new Item(this.Manager, this.Document, relnode);
+                this.RelationshipsCache.Add(relitem);
             }
         }
     }

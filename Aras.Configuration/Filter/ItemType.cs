@@ -50,7 +50,16 @@ namespace Aras.Configuration.Filter
         private void Load(XmlNode Node)
         {
             this.Name = Node.Attributes["name"].InnerText;
-            this.Key = Node.Attributes["key"].InnerText;
+            XmlAttribute keyattr = Node.Attributes["key"];
+
+            if (keyattr != null)
+            {
+                this.Key = keyattr.InnerText;
+            }
+            else
+            {
+                this.Key = null;
+            }
 
             this.RelationshipTypeCache = new Dictionary<String, RelationshipType>();
             XmlNode relationshiptypesNode = Node.SelectSingleNode("relationshiptypes");

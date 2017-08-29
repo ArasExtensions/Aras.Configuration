@@ -25,7 +25,7 @@
   <source type="Server">
     <url>http://localhost/11SP9</url>
     <database>Development</database>
-    <username>admin</username>
+    <username>root</username>
     <password>innovator</password>
   </source>
   <target type="Directory">

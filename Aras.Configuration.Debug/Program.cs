@@ -33,7 +33,7 @@ namespace Aras.Configuration.Debug
     {
         static void Main(string[] args)
         {
-            Logging.Console log = new Logging.Console();
+            Logging.File log = new Logging.File(new FileInfo("e:\\temp\\merge.log"), false);
             FileInfo settings = new FileInfo(".\\Configuration.xml");
             Session session = new Session(settings, log);
             session.Merge();

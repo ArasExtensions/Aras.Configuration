@@ -44,9 +44,65 @@
   <itemtypes>
     <itemtype name="ItemType" key="name">
       <relationshiptypes>
+        <relationshiptype name="Allowed Permission">
+        </relationshiptype>
+        <relationshiptype name="Allowed Workflow">
+        </relationshiptype>
+        <relationshiptype name="Can Add">
+        </relationshiptype>
+        <relationshiptype name="Client Event">
+        </relationshiptype>
+        <relationshiptype name="DiscussionTemplate">
+          <relationshiptypes>
+            <relationshiptype name="DiscussionTemplateView">
+            </relationshiptype>
+            <relationshiptype name="FeedTemplate">
+              <relationshiptypes>
+                <relationshiptype name="FileSelectorTemplate">
+                </relationshiptype>
+              </relationshiptypes>
+            </relationshiptype>
+          </relationshiptypes>
+        </relationshiptype>
+        <relationshiptype name="Implements">
+        </relationshiptype>
+        <relationshiptype name="Inherited Server Events">
+        </relationshiptype>
+        <relationshiptype name="Item Action">
+        </relationshiptype>
+        <relationshiptype name="Item Report">
+        </relationshiptype>
+        <relationshiptype name="ItemType Life Cycle">
+        </relationshiptype>
+        <relationshiptype name="ITPresentationConfiguration">
+        </relationshiptype>
+        <relationshiptype name="Morphae">
+        </relationshiptype>
         <relationshiptype name="Property" key="name">
+          <relationshiptypes>
+            <relationshiptype name="Grid Event">
+            </relationshiptype>
+          </relationshiptypes>
         </relationshiptype>
         <relationshiptype name="RelationshipType" key="name">
+          <relationshiptypes>
+            <relationshiptype name="Exclusion">
+            </relationshiptype>
+            <relationshiptype name="Hide In">
+            </relationshiptype>
+            <relationshiptype name="Hide Related In">
+            </relationshiptype>
+            <relationshiptype name="Relationship Grid Event">
+            </relationshiptype>
+            <relationshiptype name="Relationship View">
+            </relationshiptype>
+          </relationshiptypes>
+        </relationshiptype>
+        <relationshiptype name="Server Event">
+        </relationshiptype>
+        <relationshiptype name="TOC Access">
+        </relationshiptype>
+        <relationshiptype name="TOC View">
         </relationshiptype>
         <relationshiptype name="View" key="name">
         </relationshiptype>
@@ -66,7 +122,9 @@
     </itemtype>
     <itemtype name="User" key="login_name">
       <relationshiptypes>
-        <relationshiptype name="Alias" key="name">
+        <relationshiptype name="Alias">
+        </relationshiptype>
+        <relationshiptype name="ReadPriority">
         </relationshiptype>
       </relationshiptypes>
     </itemtype>
@@ -83,6 +141,138 @@
         <relationshiptype name="Frameset" key="name">
         </relationshiptype>
       </relationshiptypes>
+    </itemtype>
+    <itemtype name="Revision" key="name">
+    </itemtype>
+    <itemtype name="History Template" key="name">
+      <relationshiptypes>
+        <relationshiptype name="History Template Action" key="name">
+        </relationshiptype>
+        <relationshiptype name="History Template Where Used" key="name">
+        </relationshiptype>
+      </relationshiptypes>
+    </itemtype>
+    <itemtype name="Vault" key="name">
+      <relationshiptypes>
+        <relationshiptype name="ConversionServerPriority" key="name">
+        </relationshiptype>
+        <relationshiptype name="ReplicationRule" key="name">
+          <relationshiptypes>
+            <relationshiptype name="ReplicationRuleFileType" key="name">
+            </relationshiptype>
+            <relationshiptype name="ReplicationRuleTargetVault" key="name">
+            </relationshiptype>
+          </relationshiptypes>
+        </relationshiptype>
+      </relationshiptypes>
+    </itemtype>
+    <itemtype name="Life Cycle Map" key="name">
+      <relationshiptypes>
+        <relationshiptype name="Life Cycle State">
+          <relationshiptypes>
+            <relationshiptype name="State EMail">
+              <relationshiptypes>
+                <relationshiptype name="State Distribution">
+                </relationshiptype>
+              </relationshiptypes>
+            </relationshiptype>
+            <relationshiptype name="State Notification">
+            </relationshiptype>
+          </relationshiptypes>
+        </relationshiptype>
+        <relationshiptype name="Life Cycle Transition">
+          <relationshiptypes>
+            <relationshiptype name="Transition EMail">
+              <relationshiptypes>
+                <relationshiptype name="Transition Distribution">
+                </relationshiptype>
+              </relationshiptypes>
+            </relationshiptype>
+          </relationshiptypes>
+        </relationshiptype>
+      </relationshiptypes>
+    </itemtype>
+    <itemtype name="PresentationConfiguration" key="name">
+      <relationshiptypes>
+        <relationshiptype name="PresentationCommandBarSection">
+        </relationshiptype>
+      </relationshiptypes>
+    </itemtype>
+    <itemtype name="Method" key="name">
+    </itemtype>
+    <itemtype name="Grid" key="name">
+      <relationshiptypes>
+        <relationshiptype name="Configurable Grid Event">
+        </relationshiptype>
+        <relationshiptype name="Grid Column">
+          <relationshiptypes>
+            <relationshiptype name="Column Event">
+            </relationshiptype>
+          </relationshiptypes>
+        </relationshiptype>
+      </relationshiptypes>
+    </itemtype>
+    <itemtype name="Action" key="name">
+    </itemtype>
+    <itemtype name="SSVCPresentationConfiguration" key="name">
+    </itemtype>
+    <itemtype name="Workflow Map" key="name">
+      <relationshiptypes>
+        <relationshiptype name="Workflow Map Activity">
+        </relationshiptype>
+        <relationshiptype name="Workflow Map Variable">
+        </relationshiptype>
+      </relationshiptypes>
+    </itemtype>
+    <itemtype name="Report" key="name">
+    </itemtype>
+    <itemtype name="History Action" key="name">
+    </itemtype>
+    <itemtype name="ConversionServer" key="name">
+      <relationshiptypes>
+        <relationshiptype name="ConversionServerConverterType">
+        </relationshiptype>
+      </relationshiptypes>
+    </itemtype>
+    <itemtype name="CommandBarSection" key="name">
+      <relationshiptypes>
+        <relationshiptype name="CommandBarSectionDependency">
+        </relationshiptype>
+        <relationshiptype name="CommandBarSectionItem">
+        </relationshiptype>
+      </relationshiptypes>
+    </itemtype>
+    <itemtype name="SecureMessageViewTemplate" key="id">
+    </itemtype>
+    <itemtype name="Activity Template" key="name">
+      <relationshiptypes>
+        <relationshiptype name="Activity Template Assignment">
+        </relationshiptype>
+        <relationshiptype name="Activity Template EMail">
+        </relationshiptype>
+        <relationshiptype name="Activity Template Method">
+        </relationshiptype>
+        <relationshiptype name="Activity Template Task">
+        </relationshiptype>
+        <relationshiptype name="Activity Template Transition">
+        </relationshiptype>
+        <relationshiptype name="Activity Template Variable">
+        </relationshiptype>
+        <relationshiptype name="Workflow Map Path">
+          <relationshiptypes>
+            <relationshiptype name="Workflow Map Path Post">
+            </relationshiptype>
+            <relationshiptype name="Workflow Map Path Pre">
+            </relationshiptype>
+          </relationshiptypes>
+        </relationshiptype>
+      </relationshiptypes>
+    </itemtype>
+    <itemtype name="ConverterType" key="name">
+    </itemtype>
+    <itemtype name="CommandBarItem" key="name">
+    </itemtype>
+    <itemtype name="EMail Message" key="name">
     </itemtype>
   </itemtypes>
 </filter>

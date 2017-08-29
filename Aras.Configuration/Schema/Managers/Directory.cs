@@ -53,16 +53,28 @@ namespace Aras.Configuration.Schema.Managers
      
         }
 
+        private String RemoveInvalidCharacters(String Name)
+        {
+            if (!String.IsNullOrEmpty(Name))
+            {
+                return Name.Replace(":", "");
+            }
+            else
+            {
+                return Name;
+            }
+        }
+
         private FileInfo ItemFilename (Item Item)
         {
-            return new FileInfo(this.BaseDirectory.FullName + "\\" + Item.ItemType + "\\" + Item.Key + ".xml");
+            return new FileInfo(this.BaseDirectory.FullName + "\\" + Item.ItemType + "\\" + this.RemoveInvalidCharacters(Item.Key) + ".xml");
         }
 
         public override void Save()
         {
-           foreach(String itemtype in this.LoadedItemTypes)
+           foreach(Filter.ItemType itemtype in this.Filter.RootItemTypes)
            {
-               foreach(Item item in this.LoadedItems(itemtype))
+               foreach(Item item in this.LoadedItems(itemtype.Name))
                {
                    FileInfo file = this.ItemFilename(item);
 
