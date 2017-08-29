@@ -46,7 +46,53 @@ namespace Aras.Configuration.Filter
             }
         }
 
+        private Dictionary<String, ItemType> RootItemTypesCache;
+
+        private void AddToRootItemTypesCache(ItemType ItemType)
+        {
+            if (!this.RootItemTypesCache.ContainsKey(ItemType.Name))
+            {
+                this.RootItemTypesCache[ItemType.Name] = ItemType;
+            }
+            else
+            {
+                this.Log.Add(Logging.Levels.Error, "Duplicate ItemType node: " + ItemType.Name);
+            }
+        }
+
+        public IEnumerable<ItemType> RootItemTypes
+        {
+            get
+            {
+                return this.RootItemTypesCache.Values;
+            }
+        }
+
+        public ItemType RootItemType(String Name)
+        {
+            if (this.RootItemTypesCache.ContainsKey(Name))
+            {
+                return this.RootItemTypesCache[Name];
+            }
+            else
+            {
+                throw new ArgumentException("Invalid ItemType Name");
+            }
+        }
+
         private Dictionary<String, ItemType> ItemTypesCache;
+
+        internal void AddToItemTypesCache(ItemType ItemType)
+        {
+            if (!this.ItemTypesCache.ContainsKey(ItemType.Name))
+            {
+                this.ItemTypesCache[ItemType.Name] = ItemType;
+            }
+            else
+            {
+                this.Log.Add(Logging.Levels.Error, "Duplicate ItemType node: " + ItemType.Name);
+            }
+        }
 
         public IEnumerable<ItemType> ItemTypes
         {
@@ -73,6 +119,7 @@ namespace Aras.Configuration.Filter
             // Create Caches
             this.SystemPropertiesCache = new List<String>();
             this.ItemTypesCache = new Dictionary<String,ItemType>();
+            this.RootItemTypesCache = new Dictionary<String, Filter.ItemType>();
 
             // Open XML File
             XmlDocument doc = new XmlDocument();
@@ -109,12 +156,9 @@ namespace Aras.Configuration.Filter
             {
                 foreach(XmlNode itemtypeNode in itemtypesNode.SelectNodes("itemtype"))
                 {
-                    ItemType itemtype = new ItemType(itemtypeNode);
-
-                    if (!this.ItemTypesCache.ContainsKey(itemtype.Name))
-                    {
-                        this.ItemTypesCache[itemtype.Name] = itemtype;
-                    }
+                    ItemType itemtype = new ItemType(this, itemtypeNode);
+                    this.AddToRootItemTypesCache(itemtype);
+                    this.AddToItemTypesCache(itemtype);
                 }
             }
             else

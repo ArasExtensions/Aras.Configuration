@@ -31,6 +31,8 @@ namespace Aras.Configuration.Filter
 {
     public class ItemType
     {
+        public Session Session { get; private set; }
+
         public String Name { get; private set; }
 
         public String Key { get; private set; }
@@ -57,7 +59,8 @@ namespace Aras.Configuration.Filter
             {
                 foreach(XmlNode relationshiptypeNode in relationshiptypesNode.SelectNodes("relationshiptype"))
                 {
-                    RelationshipType relationshiptype = new RelationshipType(relationshiptypeNode);
+                    RelationshipType relationshiptype = new RelationshipType(this.Session, relationshiptypeNode);
+                    this.Session.AddToItemTypesCache(relationshiptype);
 
                     if (!this.RelationshipTypeCache.ContainsKey(relationshiptype.Name))
                     {
@@ -72,8 +75,9 @@ namespace Aras.Configuration.Filter
             return this.Name;
         }
 
-        internal ItemType(XmlNode Node)
+        internal ItemType(Session Session, XmlNode Node)
         {
+            this.Session = Session;
             this.Load(Node);
         }
     }

@@ -63,20 +63,26 @@ namespace Aras.Configuration.Schema
             }
         }
 
-        public String ItemType
+        private Filter.ItemType _itemType;
+        public Filter.ItemType ItemType
         {
             get
             {
-                XmlAttribute type = this.Node.Attributes["type"];
+                if (this._itemType == null)
+                {
+                    XmlAttribute type = this.Node.Attributes["type"];
 
-                if (type != null)
-                {
-                    return type.Value;
+                    if (type != null)
+                    {
+                        this._itemType = this.Manager.Filter.ItemType(type.Value);
+                    }
+                    else
+                    {
+                        throw new ArgumentNullException("Missing ItemType");
+                    }
                 }
-                else
-                {
-                    return null;
-                }
+
+                return this._itemType;
             }
         }
 
@@ -110,12 +116,39 @@ namespace Aras.Configuration.Schema
             {
                 if (this._key == null)
                 {
-                    String kepprop = this.Manager.Filter.ItemType(this.ItemType).Key;
+                    String kepprop = this.ItemType.Key;
                     this._key = this.GetProperty(kepprop, null);
                 }
 
                 return this._key;
             }
+        }
+
+        private XmlNode _relationshipsNode;
+        private XmlNode RelationshipsNode
+        {
+            get
+            {
+                if (this._relationshipsNode == null)
+                {
+                    this._relationshipsNode = this.Node.SelectSingleNode("Relationships");
+
+                    if (this._relationshipsNode == null)
+                    {
+                        this._relationshipsNode = this.Document.CreateNode(XmlNodeType.Element, "Relationships", null);
+                        this.Node.AppendChild(this._relationshipsNode);
+                    }
+                }
+
+                return _relationshipsNode;
+            }
+        }
+
+        private List<Item> RelationshipsCache;
+
+        internal void Validate()
+        {
+
         }
 
         internal Item(Manager Manager, XmlDocument Document)
@@ -130,7 +163,17 @@ namespace Aras.Configuration.Schema
             this.Document = Document;
             this.Node = Node;
             this.Action = Actions.Get;
+
+            // Add this Item to Cache
             Manager.AddItemToCache(this);
+
+            // Add Relationships to Cache
+            this.RelationshipsCache = new List<Item>();
+
+            foreach (XmlNode relnode in this.RelationshipsNode.ChildNodes)
+            {
+                Item relitem = new Item(this.Manager, this.Document, relnode);
+            }
         }
     }
 }

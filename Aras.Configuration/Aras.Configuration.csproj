@@ -43,11 +43,9 @@
     <Compile Include="Filter\ItemType.cs" />
     <Compile Include="Filter\Session.cs" />
     <Compile Include="Schema\Item.cs" />
-    <Compile Include="Schema\ItemType.cs" />
     <Compile Include="Schema\Manager.cs" />
     <Compile Include="Schema\Managers\Directory.cs" />
     <Compile Include="Schema\Managers\Server.cs" />
-    <Compile Include="Schema\Property.cs" />
     <Compile Include="Session.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

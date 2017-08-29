@@ -48,12 +48,7 @@ namespace Aras.Configuration.Schema.Managers
             }
         }
 
-        protected override IEnumerable<ItemType> LoadItemTypes()
-        {
-            return new List<ItemType>();
-        }
-
-        public override void Load()
+        protected override void LoadItems()
         {
      
         }

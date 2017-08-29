@@ -51,44 +51,22 @@ namespace Aras.Configuration.Schema
 
         protected abstract void LoadSettings(XmlNode Settings);
 
-        private Dictionary<String, ItemType> ItemTypesCache;
-
-        public IEnumerable<ItemType> ItemTypes
-        {
-            get
-            {
-                return this.ItemTypesCache.Values;
-            }
-        }
-
-        public ItemType ItemType(String Name)
-        {
-            if (this.ItemTypesCache.ContainsKey(Name))
-            {
-                return this.ItemTypesCache[Name];
-            }
-            else
-            {
-                throw new ArgumentException("Invalid ItemType Name");
-            }
-        }
-
-        protected abstract IEnumerable<ItemType> LoadItemTypes();
-
         private Dictionary<String, Dictionary<String, Item>> ItemIDCache;
+
+        private Dictionary<String, Dictionary<String, Item>> ItemKeyCache;
 
         internal void AddItemToCache(Item Item)
         {
-            if (!this.ItemIDCache.ContainsKey(Item.ItemType))
+            if (!this.ItemIDCache.ContainsKey(Item.ItemType.Name))
             {
-                this.ItemIDCache[Item.ItemType] = new Dictionary<String, Item>();
-                this.ItemIDCache[Item.ItemType][Item.ID] = Item;
+                this.ItemIDCache[Item.ItemType.Name] = new Dictionary<String, Item>();
+                this.ItemIDCache[Item.ItemType.Name][Item.ID] = Item;
             }
             else
             {
-                if (!this.ItemIDCache[Item.ItemType].ContainsKey(Item.ID))
+                if (!this.ItemIDCache[Item.ItemType.Name].ContainsKey(Item.ID))
                 {
-                    this.ItemIDCache[Item.ItemType][Item.ID] = Item;
+                    this.ItemIDCache[Item.ItemType.Name][Item.ID] = Item;
                 }
                 else
                 {
@@ -136,13 +114,40 @@ namespace Aras.Configuration.Schema
             }
         }
 
-        public abstract void Load();
+        protected abstract void LoadItems();
+
+        private void Validate()
+        {
+            foreach(Filter.ItemType itemtype in this.Filter.RootItemTypes)
+            {
+                if (this.ItemIDCache.ContainsKey(itemtype.Name))
+                {
+                    foreach (Item item in this.ItemIDCache[itemtype.Name].Values)
+                    {
+                        item.Validate();
+                    }
+                }
+            }
+        }
+
+        public void Load()
+        {
+            // Load Items
+            this.LoadItems();
+
+            // Validate Schema
+            this.Validate();
+
+            // Build Key Cache
+        
+
+        }
 
         public abstract void Save();
 
         public void Merge(Manager Target)
         {
-            foreach(Filter.ItemType itemtype in this.Filter.ItemTypes)
+            foreach(Filter.ItemType itemtype in this.Filter.RootItemTypes)
             {
                 foreach(Item sourceitem in this.LoadedItems(itemtype.Name))
                 {
@@ -166,18 +171,11 @@ namespace Aras.Configuration.Schema
         internal Manager(Configuration.Session Configuration, XmlNode Settings)
         {
             this.ItemIDCache = new Dictionary<String, Dictionary<String, Item>>();
-            //this.ItemKeyCache = new Dictionary<String, Dictionary<String, Item>>();
+            this.ItemKeyCache = new Dictionary<String, Dictionary<String, Item>>();
             this.Configuration = Configuration;
-            this.LoadSettings(Settings);
-            this.ItemTypesCache = new Dictionary<String, ItemType>();
             
-            foreach(ItemType itemtype in this.LoadItemTypes())
-            {
-                if (!this.ItemTypesCache.ContainsKey(itemtype.Name))
-                {
-                    this.ItemTypesCache[itemtype.Name] = itemtype;
-                }
-            }
+            // Load Settings
+            this.LoadSettings(Settings);
         }
     }
 }

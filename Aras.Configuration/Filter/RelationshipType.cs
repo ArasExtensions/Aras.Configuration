@@ -32,8 +32,8 @@ namespace Aras.Configuration.Filter
     public class RelationshipType : ItemType
     {
 
-        internal RelationshipType(XmlNode Node)
-            :base(Node)
+        internal RelationshipType(Session Session, XmlNode Node)
+            : base(Session, Node)
         {
           
         }

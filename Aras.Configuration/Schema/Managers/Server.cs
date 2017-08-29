@@ -86,44 +86,6 @@ namespace Aras.Configuration.Schema.Managers
             }
         }
 
-        protected override IEnumerable<ItemType> LoadItemTypes()
-        {
-            List<ItemType> ret = new List<Schema.ItemType>();
-
-            // Connect to Server
-            IO.Server server = new IO.Server(this.URL);
-            IO.Database database = server.Database(this.Database);
-            IO.Session session = database.Login(this.Username, this.Password);
-
-            IO.Request request = session.Request(IO.Request.Operations.ApplyItem);
-            IO.Item item = request.NewItem("ItemType", "get");
-            item.Select = "name,is_relationship";
-            IO.Item relitem = new IO.Item("Property", "get");
-            relitem.Select = "name,data_type";
-            item.AddRelationship(relitem);
-
-            IO.Response response = request.Execute();
-
-            foreach(IO.Item ioitem in response.Items)
-            {
-                ItemType itemtype = new ItemType(ioitem.GetProperty("name"), "1".Equals(ioitem.GetProperty("is_relationship")));
-                ret.Add(itemtype);
-
-                foreach(IO.Item ioprop in ioitem.Relationships)
-                {
-                    String name = ioprop.GetProperty("name");
-
-                    if (!this.Filter.SystemProperties.Contains(name))
-                    {
-                        itemtype.AddProperty(name, ioprop.GetProperty("data_type"));
-                    }
-                }
-            }
-
-            return ret;
-        }
-
-
         private void AddRelationshipTypes(IO.Request Request, IO.Item Source, Filter.ItemType FilterItemType)
         {
             foreach (Filter.RelationshipType filterrelationshiptype in FilterItemType.RelationshipTypes)
@@ -135,9 +97,9 @@ namespace Aras.Configuration.Schema.Managers
             }
         }
 
-        public override void Load()
+        protected override void LoadItems()
         {
-            foreach(Filter.ItemType filteritemtype in this.Filter.ItemTypes)
+            foreach(Filter.ItemType filteritemtype in this.Filter.RootItemTypes)
             {
                 // Connect to Server
                 IO.Server server = new IO.Server(this.URL);
@@ -170,10 +132,200 @@ namespace Aras.Configuration.Schema.Managers
 
         }
 
+        private Dictionary<String, ItemType> ItemTypesCache;
+
+        private IEnumerable<ItemType> ItemTypes
+        {
+            get
+            {
+                return this.ItemTypesCache.Values;
+            }
+        }
+
+        private ItemType ItemType(String Name)
+        {
+            if (this.ItemTypesCache.ContainsKey(Name))
+            {
+                return this.ItemTypesCache[Name];
+            }
+            else
+            {
+                throw new ArgumentException("Invalid ItemType Name");
+            }
+        }
+
+        private void LoadItemTypes()
+        {
+            this.ItemTypesCache = new Dictionary<String, Managers.ItemType>();
+
+            // Connect to Server
+            IO.Server server = new IO.Server(this.URL);
+            IO.Database database = server.Database(this.Database);
+            IO.Session session = database.Login(this.Username, this.Password);
+
+            IO.Request request = session.Request(IO.Request.Operations.ApplyItem);
+            IO.Item item = request.NewItem("ItemType", "get");
+            item.Select = "name,is_relationship";
+            IO.Item relitem = new IO.Item("Property", "get");
+            relitem.Select = "name,data_type";
+            item.AddRelationship(relitem);
+
+            IO.Response response = request.Execute();
+
+            foreach (IO.Item ioitem in response.Items)
+            {
+                ItemType itemtype = new ItemType(ioitem.GetProperty("name"), "1".Equals(ioitem.GetProperty("is_relationship")));
+                this.ItemTypesCache[itemtype.Name] = itemtype;
+
+                foreach (IO.Item ioprop in ioitem.Relationships)
+                {
+                    String name = ioprop.GetProperty("name");
+
+                    if (!this.Filter.SystemProperties.Contains(name))
+                    {
+                        itemtype.AddProperty(name, ioprop.GetProperty("data_type"));
+                    }
+                }
+            }
+        }
+
         internal Server(Configuration.Session Configuration, XmlNode Settings)
             :base(Configuration, Settings)
         {
+            this.LoadItemTypes();
+        }
+    }
 
+    internal class ItemType : IEquatable<ItemType>
+    {
+        internal String Name { get; private set; }
+
+        internal Boolean IsRelationship { get; private set; }
+
+        private Dictionary<String, Property> PropertyCache;
+
+        internal void AddProperty(String Name, String DataType)
+        {
+            if (!this.PropertyCache.ContainsKey(Name))
+            {
+                this.PropertyCache[Name] = new Property(Name, DataType);
+            }
+        }
+
+        internal IEnumerable<Property> Properties
+        {
+            get
+            {
+                return this.PropertyCache.Values;
+            }
+        }
+
+        internal Property Property(String Name)
+        {
+            if (this.PropertyCache.ContainsKey(Name))
+            {
+                return this.PropertyCache[Name];
+            }
+            else
+            {
+                throw new ArgumentException("Invalid Property Name");
+            }
+        }
+
+        private String _select;
+        internal String Select
+        {
+            get
+            {
+                if (this._select == null)
+                {
+                    StringBuilder sb = new StringBuilder();
+
+                    foreach (Property prop in this.Properties)
+                    {
+                        sb.Append(prop.Name);
+
+                        if (prop.DataType == "item")
+                        {
+                            sb.Append("(id)");
+                        }
+
+                        sb.Append(",");
+                    }
+
+                    if (this.IsRelationship)
+                    {
+                        sb.Append("source_id(id),related_id(id),id");
+                    }
+                    else
+                    {
+                        sb.Append("id");
+                    }
+
+                    this._select = sb.ToString();
+                }
+
+                return this._select;
+            }
+        }
+
+        public override string ToString()
+        {
+            return this.Name;
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Name.GetHashCode();
+        }
+
+        public Boolean Equals(ItemType other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+            else
+            {
+                return this.Name.Equals(other.Name);
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if ((obj == null) && !(obj is ItemType))
+            {
+                return false;
+            }
+            else
+            {
+                return this.Equals((ItemType)obj);
+            }
+        }
+
+        internal ItemType(String Name, Boolean IsRelationship)
+        {
+            this.PropertyCache = new Dictionary<String, Property>();
+            this.Name = Name;
+            this.IsRelationship = IsRelationship;
+        }
+    }
+
+    internal class Property
+    {
+        internal String Name { get; private set; }
+
+        internal String DataType { get; private set; }
+
+        public override string ToString()
+        {
+            return this.Name;
+        }
+
+        internal Property(String Name, String DataType)
+        {
+            this.Name = Name;
+            this.DataType = DataType;
         }
     }
 }
